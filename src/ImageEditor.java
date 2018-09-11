@@ -96,7 +96,7 @@ public class ImageEditor {
 		
 		myScan.close();
 		myWriter.close();
-		//System.out.println(outList);
+		System.out.println(outList);
 		System.out.println( "output size: " + outList.size());
 		System.out.println("width: " + width + " height: " + height);
 		System.out.println("Pixels: " + pixelList.size());

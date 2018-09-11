@@ -37,11 +37,12 @@ public class Image {
 		Image embossed = new Image();
 		embossed.setImageArraySize(height,  width);
 		
-		for (int i = 0; i < width; ++i) {
+		for (int i = 0; i < width; ++i) { //top and left sides need to be 128
 			for (int j = 0; j < height; ++j) {
 				Pixel current = imageArray[i][j];
 				Pixel topLeft;
 				if (i == 0 || j == 0) {
+					System.out.println(i + " " + j + " is a top or left side");
 					topLeft = new Pixel(128, 128, 128);
 				}
 				else {
@@ -49,6 +50,7 @@ public class Image {
 				}
 				int[] cArray = current.getData();
 				int[] tlArray = topLeft.getData();
+					System.out.println("top left data: " + tlArray[0] + " " + tlArray[1] + " " + tlArray[2]);
 				
 				int redDiff = cArray[0] - tlArray[0];
 				int greenDiff = cArray[1] - tlArray[1];
@@ -79,7 +81,14 @@ public class Image {
 				if (v > 255) {
 					v = 255;
 				}
-				Pixel newPixel = new Pixel(v, v, v);
+				
+				Pixel newPixel;
+				if (i == 0 || j == 0) {
+					newPixel = new Pixel(128, 128, 128);
+				}
+				else {
+					newPixel = new Pixel(v, v, v);
+				}
 				embossed.setPixel(newPixel,  i,  j);
 			}
 		}
