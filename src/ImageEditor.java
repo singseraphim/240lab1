@@ -96,26 +96,18 @@ public class ImageEditor {
 		
 		myScan.close();
 		myWriter.close();
-		//System.out.println(myImage.toString());
-		System.out.println(outList);
+		//System.out.println(outList);
 		System.out.println( "output size: " + outList.size());
 		System.out.println("width: " + width + " height: " + height);
 		System.out.println("Pixels: " + pixelList.size());
-		System.out.println("done!");
+		System.out.println("Done!");
 		
 		
 
 	}
 
 }
-
-/* 
-grayscale and invert seem to be working properly. 
--implement blur
--refactor the input to do it in one nested loop. 
-emboss works properly
-
-
+/*
 
 note: may need to fix where the program looks for the input file later. 
 
