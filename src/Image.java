@@ -112,7 +112,6 @@ public class Image {
 			for (int j = 0; j < width; ++j) {
 			
 				Pixel newPixel = getAverageValue(i, j, b);
-				System.out.println(i + " " + j + " average is " + newPixel.getData()[0] + " " + newPixel.getData()[1] + " " + newPixel.getData()[2]);
 				blurred.setPixel(newPixel,  i,  j);
 			
 			}
@@ -129,10 +128,9 @@ public class Image {
 		int blueAvg = 0;
 		
 		//make sure blur is in bounds
-		if((y + b) >= height) {
-			b = height - y;
+		if((y + b) >= width) { //somehow this returns b = 0
+			b = width - y;
 		}
-		System.out.println("Blur width: " + b);
 		
 		//get the average values
 		for (int i = y; i < y + b; ++i) {
@@ -141,7 +139,7 @@ public class Image {
 			greenAvg += pixelVals[1];
 			blueAvg += pixelVals[2];
 		}
-		redAvg = redAvg/b;
+		redAvg = redAvg/b; 
 		greenAvg = greenAvg/b;
 		blueAvg = blueAvg/b;
 		returnPixel.setRGB(redAvg,  greenAvg, blueAvg);
@@ -183,16 +181,6 @@ public class Image {
 
 /*
  * TO DO:
- * Compare your embossed output to the one provided
- * You have a ghost situation going on. It looks like what Brigham showed you. 
- * Changing the loops didn't really do much. 
- * The CS and audio pictures look great, but the temple is horrifying. It's likely the program was never actually working. 
- * Test blur to see how it looks on the temple image. 
- * Blur function doesn't work wtf
- * Blur works you doofus. 
- * Wait no blur doesn't work oh no what are these diagonal lines? pray to whatever eldritch gods may be listening!
- * Ok so your image has the pox. It's sporadic. 
- * Blur is as done as I can possibly make it be!
- * Let's rewrite emboss now. 
- * Emboss is still haunted. But at least my code is a bit tidier. Ask to see some of other people's code tomorrow. 
+ * Embossed totally freakin works my guy!
+ * divide by 0 exception in my get average value
  */
