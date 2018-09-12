@@ -23,6 +23,16 @@ public class ImageEditor {
 		   System.err.println("USAGE: java ImageEditor infile outfile (mode blur-length)");
 		}
 		
+		if (args.length < 3) {
+			   System.err.println("USAGE: java ImageEditor infile outfile (mode blur-length)");
+
+		}
+		else if (args[2].equals("motionblur") && args.length != 4) {
+			   System.err.println("USAGE: java ImageEditor infile outfile (mode blur-length)");
+
+		}
+		
+		
 		Scanner myScan;
 		myScan = new Scanner(input).useDelimiter("((#[^\\n]*\\n)|(\\s+))+");
 		
@@ -38,6 +48,8 @@ public class ImageEditor {
 		
 		outString = header + " " + width + " " + height + " " + maxVal + "\n";
 		s.append(outString);
+
+System.out.println("width: " + width + " height: " + height );
 		
         ArrayList<Integer> inputList = new ArrayList<Integer>(1); 	
        
@@ -59,8 +71,8 @@ public class ImageEditor {
         
         int l = 0;
         while (l < pixelList.size()) { //sets pixels into image array
-        	for (int k = 0; k < width; ++k) {
-        		for (int j = 0; j < height; ++j) {
+        	for (int k = 0; k < height; ++k) {
+        		for (int j = 0; j < width; ++j) {
         			myImage.setPixel(pixelList.get(l), k, j);
         			++l;
         		}
@@ -82,6 +94,7 @@ public class ImageEditor {
         	int blurAmount = Integer.parseInt(args[3]);
         	myImage = myImage.doBlur(blurAmount);
         }
+        //myImage.Test();
         
         
                 
@@ -96,10 +109,10 @@ public class ImageEditor {
 		
 		myScan.close();
 		myWriter.close();
-		System.out.println(outList);
-		System.out.println( "output size: " + outList.size());
-		System.out.println("width: " + width + " height: " + height);
-		System.out.println("Pixels: " + pixelList.size());
+		//System.out.println(outList);
+		//System.out.println( "output size: " + outList.size());
+		//System.out.println("width: " + width + " height: " + height);
+		//System.out.println("Pixels: " + pixelList.size());
 		System.out.println("Done!");
 		
 		

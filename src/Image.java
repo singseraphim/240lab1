@@ -10,7 +10,7 @@ public class Image {
 		width = 0;
 	}
 	public void setImageArraySize(int h, int w) {
-		imageArray = new Pixel[w][h];
+		imageArray = new Pixel[h][w];
 		height = h;
 		width = w;
 	}
@@ -18,15 +18,15 @@ public class Image {
 		imageArray[x][y] = newPix;
 	}
 	public void doGrayscale() {
-		for (int i = 0; i < width; ++i) {
-			for (int j = 0; j < height; ++j) {
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
 				imageArray[i][j].setToGrayscale();
 			}
 		}
 	}
 	public void doInvert() {
-		for (int i = 0; i < width; ++i) {
-			for (int j = 0; j < height; ++j) {
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
 				imageArray[i][j].invert();
 			}
 		}
@@ -37,59 +37,55 @@ public class Image {
 		Image embossed = new Image();
 		embossed.setImageArraySize(height,  width);
 		
-		for (int i = 0; i < width; ++i) { //top and left sides need to be 128
-			for (int j = 0; j < height; ++j) {
+		for (int i = 0; i < height; ++i) { 
+			for (int j = 0; j < width; ++j) {
 				Pixel current = imageArray[i][j];
-				Pixel topLeft;
+				Pixel embPixel = null;
+				
+				//if at top or left side
 				if (i == 0 || j == 0) {
-					System.out.println(i + " " + j + " is a top or left side");
-					topLeft = new Pixel(128, 128, 128);
+					embPixel = new Pixel(128, 128, 128);
 				}
 				else {
-					topLeft = imageArray[i - 1][j - 1];
+					
+					Pixel topLeft = imageArray[i - 1][j - 1];
+					
+					//get the differences between current and top left pixels
+					int redDiff = current.getData()[0] - topLeft.getData()[0];
+					int greenDiff = current.getData()[1] - topLeft.getData()[1];
+					int blueDiff = current.getData()[2] - topLeft.getData()[2];
+					
+					//get the absolute values for comparison
+					int redMaxDiff = Math.abs(redDiff);
+					int greenMaxDiff = Math.abs(greenDiff);
+					int blueMaxDiff = Math.abs(blueDiff);
+					
+					//get which color has the maximum difference
+					int maxDiffColor = getLargestDifference(redMaxDiff, greenMaxDiff, blueMaxDiff);
+					
+					//add 128 to the color with the largest difference and make that the final value
+					int finalValue = 0;
+					if (maxDiffColor == 0) {
+						finalValue = redDiff + 128;
+					}
+					else if (maxDiffColor == 1) {
+						finalValue = greenDiff + 128;
+					}
+					else {
+						finalValue = blueDiff + 128;
+					}
+					
+					//make sure the final value is in proper bounds 
+					if (finalValue < 0) {
+						finalValue = 0;
+					}
+					if (finalValue > 255) {
+						finalValue = 255;
+					}
+					
+					embPixel = new Pixel(finalValue, finalValue, finalValue);
 				}
-				int[] cArray = current.getData();
-				int[] tlArray = topLeft.getData();
-					System.out.println("top left data: " + tlArray[0] + " " + tlArray[1] + " " + tlArray[2]);
-				
-				int redDiff = cArray[0] - tlArray[0];
-				int greenDiff = cArray[1] - tlArray[1];
-				int blueDiff = cArray[2] - tlArray[2];
-				
-				int redDiffAbs = Math.abs(redDiff);
-				int greenDiffAbs = Math.abs(greenDiff);
-				int blueDiffAbs = Math.abs(blueDiff);
-				
-				int maxDiffColor = getLargestDifference(redDiffAbs, greenDiffAbs, blueDiffAbs);
-				int maxVal = 0;
-				
-				if (maxDiffColor == 0) {
-					maxVal = redDiff;
-				}
-				else if (maxDiffColor == 1) {
-					maxVal = greenDiff;
-				}
-				else if (maxDiffColor == 2) {
-					maxVal = blueDiff;
-				}
-				
-				int v = 128 + maxVal;
-				
-				if (v < 0) {
-					v = 0;
-				}
-				if (v > 255) {
-					v = 255;
-				}
-				
-				Pixel newPixel;
-				if (i == 0 || j == 0) {
-					newPixel = new Pixel(128, 128, 128);
-				}
-				else {
-					newPixel = new Pixel(v, v, v);
-				}
-				embossed.setPixel(newPixel,  i,  j);
+				embossed.setPixel(embPixel, i, j);
 			}
 		}
 		return embossed;
@@ -103,22 +99,20 @@ public class Image {
 			return 1;
 		}
 		else if ((b >= r) && (b >= g)) {
-			return r;
+			return 2;
 		}
-		return 10;
+		return 0;
 	}
 	
 	public Image doBlur(int b) {
 		Image blurred = new Image();
 		blurred.setImageArraySize(height,  width);
 		
-		for (int i = 0; i < width; ++i) {
-			for (int j = 0; j < height; ++j) {
-				int redAvg = getAverageValue(0, i, j, b);
-				int greenAvg = getAverageValue(1, i, j, b);
-				int blueAvg = getAverageValue(2, i, j, b);
-				
-				Pixel newPixel = new Pixel(redAvg, greenAvg, blueAvg);
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
+			
+				Pixel newPixel = getAverageValue(i, j, b);
+				System.out.println(i + " " + j + " average is " + newPixel.getData()[0] + " " + newPixel.getData()[1] + " " + newPixel.getData()[2]);
 				blurred.setPixel(newPixel,  i,  j);
 			
 			}
@@ -128,35 +122,36 @@ public class Image {
 		
 	}
 	
-	public int getAverageValue(int color, int x, int y, int b) {
-		int v = 0;
+	public Pixel getAverageValue(int x, int y, int b) {
+		Pixel returnPixel = new Pixel();
+		int redAvg = 0;
+		int greenAvg = 0;
+		int blueAvg = 0;
 		
-		if ((y + (b - 1)) > width) {
-			b = width - y;
+		//make sure blur is in bounds
+		if((y + b) >= height) {
+			b = height - y;
 		}
-		for (int i = y; i < y + b - 1; ++i) {
-			int[] pixelVals = imageArray[x][i].getData(); //issue here- accessing out of bounds elements I think?
-			if (color == 0) {
-				v = v + pixelVals[0];
-			}
-			else if (color == 1) {
-				v = v + pixelVals[1];
-				
-			}
-			else if (color == 2) {
-				v = v + pixelVals[2];
-			}
+		System.out.println("Blur width: " + b);
+		
+		//get the average values
+		for (int i = y; i < y + b; ++i) {
+			int[] pixelVals = imageArray[x][i].getData();
+			redAvg += pixelVals[0];
+			greenAvg += pixelVals[1];
+			blueAvg += pixelVals[2];
 		}
-		
-		v = v/b;
-		
-		
-		return v;
+		redAvg = redAvg/b;
+		greenAvg = greenAvg/b;
+		blueAvg = blueAvg/b;
+		returnPixel.setRGB(redAvg,  greenAvg, blueAvg);
+		return returnPixel;
 	}
+	
 	public String toString() {
 		String r = "";
-		for (int i = 0; i < width; ++i) {
-			for (int j = 0; j < height; ++j) {
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
 				r = r + imageArray[i][j].toString();
 			}
 			r = r + "\n";
@@ -164,11 +159,11 @@ public class Image {
 		return r;
 	}
 	
-	public ArrayList<Integer> outputData() { //not working
+	public ArrayList<Integer> outputData() { 
 		ArrayList<Integer> r = new ArrayList<Integer>(1);
 
-		for (int i = 0; i < width; ++i) {
-			for (int j = 0; j < height; ++j) {
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
 				int[] pixInfo = imageArray[i][j].getData();
 				for (int k = 0; k < pixInfo.length; ++k) {
 					r.add(pixInfo[k]);
@@ -178,4 +173,26 @@ public class Image {
 		
 		return r;
 	}
-}
+	
+	public void Test() {
+		imageArray[0][3] = new Pixel(255, 0, 0);
+		imageArray[3][0] = new Pixel(0, 255, 0);
+		imageArray[2][1] = new Pixel (0, 0, 255);
+	}
+} 
+
+/*
+ * TO DO:
+ * Compare your embossed output to the one provided
+ * You have a ghost situation going on. It looks like what Brigham showed you. 
+ * Changing the loops didn't really do much. 
+ * The CS and audio pictures look great, but the temple is horrifying. It's likely the program was never actually working. 
+ * Test blur to see how it looks on the temple image. 
+ * Blur function doesn't work wtf
+ * Blur works you doofus. 
+ * Wait no blur doesn't work oh no what are these diagonal lines? pray to whatever eldritch gods may be listening!
+ * Ok so your image has the pox. It's sporadic. 
+ * Blur is as done as I can possibly make it be!
+ * Let's rewrite emboss now. 
+ * Emboss is still haunted. But at least my code is a bit tidier. Ask to see some of other people's code tomorrow. 
+ */
